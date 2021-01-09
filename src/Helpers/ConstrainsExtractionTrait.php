@@ -2,7 +2,6 @@
 
 namespace N7\SymfonyValidators\Helpers;
 
-use Phalcon\Di;
 use Symfony\Component\Validator\Mapping\PropertyMetadataInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
