@@ -1,0 +1,5 @@
+services:
+    _defaults:
+        autowire: true
+    N7\SymfonyValidatorsBundle\:
+        resource: '../../src/'

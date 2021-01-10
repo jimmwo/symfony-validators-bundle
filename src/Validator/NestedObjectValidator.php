@@ -1,15 +1,21 @@
 <?php
 
-namespace N7\SymfonyValidators\Validator;
+namespace N7\SymfonyValidatorsBundle\Validator;
 
-use N7\SymfonyValidators\Helpers\ConstrainsExtractionTrait;
+use N7\SymfonyValidatorsBundle\Helpers\ConstrainsExtractionTrait;
+use N7\SymfonyValidatorsBundle\Service\ConstrainsExtractor;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Constraints;
 
 class NestedObjectValidator extends ConstraintValidator
 {
-    use ConstrainsExtractionTrait;
+    private ConstrainsExtractor $extractor;
+
+    public function __construct(ConstrainsExtractor $extractor)
+    {
+        $this->extractor = $extractor;
+    }
 
     /**
      * @param mixed $value
@@ -21,7 +27,7 @@ class NestedObjectValidator extends ConstraintValidator
             return;
         }
 
-        $nestedConstrains = $this->extractConstrainsFromClass($constraint->class);
+        $nestedConstrains = $this->extractor->extract($constraint->class);
 
         $this->context
             ->getValidator()
