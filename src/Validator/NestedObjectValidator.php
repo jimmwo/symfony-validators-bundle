@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace N7\SymfonyValidatorsBundle\Validator;
 
 use N7\SymfonyValidatorsBundle\Helpers\ConstrainsExtractionTrait;
@@ -8,7 +10,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Constraints;
 
-class NestedObjectValidator extends ConstraintValidator
+final class NestedObjectValidator extends ConstraintValidator
 {
     private ConstrainsExtractor $extractor;
 
