@@ -10,6 +10,6 @@ use Symfony\Component\Validator\Constraints\Optional as BaseOptional;
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-final class Optional extends BaseOptional
+class Optional extends BaseOptional
 {
 }

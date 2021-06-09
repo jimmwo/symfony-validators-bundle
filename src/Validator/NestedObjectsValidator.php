@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Constraints;
 
-final class NestedObjectsValidator extends ConstraintValidator
+class NestedObjectsValidator extends ConstraintValidator
 {
     private ConstrainsExtractor $extractor;
 

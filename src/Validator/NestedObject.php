@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraint;
 /**
  * @Annotation
  */
-final class NestedObject extends Constraint
+class NestedObject extends Constraint
 {
     public string $class;
 
