@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace N7\SymfonyValidatorsBundle\Service;
 
-use Doctrine\Common\Annotations\Reader;
 use N7\SymfonyValidatorsBundle\Options\AllowExtraFields;
 use N7\SymfonyValidatorsBundle\Options\AllowMissingFields;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Mapping\PropertyMetadataInterface;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use ReflectionClass;
+use ReflectionProperty;
+use ReflectionAttribute;
 
 final class ConstrainsExtractor
 {
@@ -19,34 +22,39 @@ final class ConstrainsExtractor
     private const VALIDATIOR_FIELDS = 'fields';
 
     private ValidatorInterface $validator;
-    private Reader $annotationsReader;
 
-    public function __construct(ValidatorInterface $validator, Reader $reader)
+    public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
-        $this->annotationsReader = $reader;
     }
 
     public function extract(string $class): Collection
     {
-        /** @var ClassMetadata $meta */
-        $meta = $this->validator->getMetadataFor($class);
+        $reflectionClass = new ReflectionClass($class);
 
         // Collecting constraints
-        $constraints = array_map(
-            fn (PropertyMetadataInterface $property): array => $property->getConstraints(),
-            $meta->properties
-        );
+        $constraints = [];
+        foreach ($reflectionClass->getProperties() as $property) {
+            $attributes = $property->getAttributes(Constraint::class, ReflectionAttribute::IS_INSTANCEOF);
+            $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
+
+            $constraints[$property->getName()] = $attributes;
+        }
+
+        $allowExtraFields = $reflectionClass->getAttributes(AllowExtraFields::class);
+        $allowExtraFields = $allowExtraFields
+            ? $allowExtraFields[0]->newInstance()
+            : new AllowExtraFields(true);
+
+        $allowMissingFields = $reflectionClass->getAttributes(AllowMissingFields::class);
+        $allowMissingFields = $allowMissingFields
+            ? $allowMissingFields[0]->newInstance()
+            : new AllowMissingFields(false);
 
         return new Collection([
-            self::VALIDATIOR_ALLOW_EXTRA_FIELDS => (bool) $this->getProperty($meta, AllowExtraFields::class),
-            self::VALIDATIOR_ALLOW_MISSING_FIELDS => (bool) $this->getProperty($meta, AllowMissingFields::class),
+            self::VALIDATIOR_ALLOW_EXTRA_FIELDS => $allowExtraFields->getValue(),
+            self::VALIDATIOR_ALLOW_MISSING_FIELDS => $allowMissingFields->getValue(),
             self::VALIDATIOR_FIELDS => $constraints,
         ]);
-    }
-
-    private function getProperty(ClassMetadata $meta, string $annotation)
-    {
-        return $this->annotationsReader->getClassAnnotation($meta->getReflectionClass(), $annotation);
     }
 }

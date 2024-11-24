@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace N7\SymfonyValidatorsBundle\Validator;
 
-use N7\SymfonyValidatorsBundle\Helpers\ConstrainsExtractionTrait;
 use N7\SymfonyValidatorsBundle\Service\ConstrainsExtractor;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
