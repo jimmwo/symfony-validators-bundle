@@ -31,14 +31,20 @@ final class ConstrainsExtractor
     public function extract(string $class): Collection
     {
         $reflectionClass = new ReflectionClass($class);
+        $meta = $this->validator->getMetadataFor($class);
 
         // Collecting constraints
-        $constraints = [];
+        $constraints = array_map(
+            fn (PropertyMetadataInterface $property): array => $property->getConstraints(),
+            $meta->properties
+        );
         foreach ($reflectionClass->getProperties() as $property) {
             $attributes = $property->getAttributes(Constraint::class, ReflectionAttribute::IS_INSTANCEOF);
             $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
 
-            $constraints[$property->getName()] = $attributes;
+            if (!empty($attributes) || !isset($constraints[$property->getName()])) {
+                $constraints[$property->getName()] = $attributes;
+            }
         }
 
         $allowExtraFields = $reflectionClass->getAttributes(AllowExtraFields::class);
