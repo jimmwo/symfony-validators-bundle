@@ -12,6 +12,11 @@
         "php": "^8.0",
         "symfony/validator": "^6.0|^7.0"
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    },
     "autoload": {
         "psr-4": {
             "N7\\SymfonyValidatorsBundle\\": "src"
