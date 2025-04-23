@@ -42,7 +42,7 @@ final class ConstrainsExtractor
             $attributes = $property->getAttributes(Constraint::class, ReflectionAttribute::IS_INSTANCEOF);
             $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
 
-            if (!empty($attributes) || !isset($constraints[$property->getName()])) {
+            if (!empty($attributes)) {
                 $constraints[$property->getName()] = $attributes;
             }
         }
