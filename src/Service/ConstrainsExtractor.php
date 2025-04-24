@@ -40,10 +40,12 @@ final class ConstrainsExtractor
         );
         foreach ($reflectionClass->getProperties() as $property) {
             $attributes = $property->getAttributes(Constraint::class, ReflectionAttribute::IS_INSTANCEOF);
-            $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
+//            $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
 
             if (!empty($attributes)) {
-                $constraints[$property->getName()] = $attributes;
+                foreach ($attributes as $attribute) {
+                    $this->replaceByClass($constraints[$property->getName()], $attribute->newInstance());
+                }
             }
         }
 
@@ -62,5 +64,19 @@ final class ConstrainsExtractor
             self::VALIDATIOR_ALLOW_MISSING_FIELDS => $allowMissingFields->getValue(),
             self::VALIDATIOR_FIELDS => $constraints,
         ]);
+    }
+
+    function replaceByClass(array $objects, object $newObject): array
+    {
+        foreach ($objects as $i => $existing) {
+            if (get_class($existing) === get_class($newObject)) {
+                $objects[$i] = $newObject;
+                return $objects;
+            }
+        }
+
+        $objects[] = $newObject;
+
+        return $objects;
     }
 }
