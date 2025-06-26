@@ -31,28 +31,24 @@ final class ConstrainsExtractor
     public function extract(string $class): Collection
     {
         $reflectionClass = new ReflectionClass($class);
-        $meta = $this->validator->getMetadataFor($class);
 
         // Collecting constraints
-        $constraints = array_map(
-            fn (PropertyMetadataInterface $property): array => $property->getConstraints(),
-            $meta->properties
-        );
+        $constraints = [];
         foreach ($reflectionClass->getProperties() as $property) {
             $attributes = $property->getAttributes(Constraint::class, ReflectionAttribute::IS_INSTANCEOF);
-//            $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
+            $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
 
-            if (!empty($attributes)) {
-                foreach ($attributes as $attribute) {
-                    $this->replaceByClass($constraints[$property->getName()], $attribute->newInstance());
-                }
+            if (empty($attributes)) {
+                continue;
             }
+
+            $constraints[$property->getName()] = $attributes;
         }
 
         $allowExtraFields = $reflectionClass->getAttributes(AllowExtraFields::class);
         $allowExtraFields = $allowExtraFields
             ? $allowExtraFields[0]->newInstance()
-            : new AllowExtraFields(false);
+            : new AllowExtraFields(true);
 
         $allowMissingFields = $reflectionClass->getAttributes(AllowMissingFields::class);
         $allowMissingFields = $allowMissingFields
@@ -64,19 +60,5 @@ final class ConstrainsExtractor
             self::VALIDATIOR_ALLOW_MISSING_FIELDS => $allowMissingFields->getValue(),
             self::VALIDATIOR_FIELDS => $constraints,
         ]);
-    }
-
-    function replaceByClass(array $objects, object $newObject): array
-    {
-        foreach ($objects as $i => $existing) {
-            if (get_class($existing) === get_class($newObject)) {
-                $objects[$i] = $newObject;
-                return $objects;
-            }
-        }
-
-        $objects[] = $newObject;
-
-        return $objects;
     }
 }
