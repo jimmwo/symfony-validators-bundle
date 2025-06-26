@@ -37,7 +37,7 @@ final class ConstrainsExtractor
         $allowExtraFields = $meta->getReflectionClass()->getAttributes(AllowExtraFields::class);
         $allowExtraFields = $allowExtraFields
             ? $allowExtraFields[0]->newInstance()
-            : new AllowExtraFields(false);
+            : new AllowExtraFields(true);
 
         $allowMissingFields = $meta->getReflectionClass()->getAttributes(AllowMissingFields::class);
         $allowMissingFields = $allowMissingFields
